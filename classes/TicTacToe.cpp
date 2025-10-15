@@ -58,6 +58,24 @@ void TicTacToe::setUpBoard()
     // then we need to setup our 3x3 array in _grid with the correct position of the square, and load the "square.png" sprite for each square
     // we will use the initHolder function on each square to do this
     // finally we should call startGame to get everything going
+    setNumberOfPlayers(2);
+    _gameOptions.rowX = 3;
+    _gameOptions.rowY = 3;
+
+    for (int i = 0; i < _gameOptions.rowX; i++) {
+        for (int k = 0; k < _gameOptions.rowY; k++) {
+            ImVec2 squarePosition;
+            float x = i * 100.0f + 5.0f;
+            float y = k * 100.0f + 25.0f;
+            squarePosition.x = x;
+            squarePosition.y = y;
+
+            _grid[i][k].initHolder(squarePosition, "square.png", k, i);
+        }
+    }
+
+    startGame();
+
 }
 
 //
