@@ -70,7 +70,7 @@ void TicTacToe::setUpBoard()
             squarePosition.x = x;
             squarePosition.y = y;
 
-            _grid[i][k].initHolder(squarePosition, "square.png", k, i);
+            _grid[i][k].initHolder(squarePosition, "square.png", i, k);
         }
     }
 
@@ -86,19 +86,28 @@ bool TicTacToe::actionForEmptyHolder(BitHolder *holder)
     // 1) Guard clause: if holder is nullptr, fail fast.
     //    (Beginner hint: always check pointers before using them.)
     //    if (!holder) return false;
+    if(!holder) return false;
 
     // 2) Is it actually empty?
     //    Ask the holder for its current Bit using the bit() function.
     //    If there is already a Bit in this holder, return false.
+    if(holder->bit()) return false;
 
     // 3) Place the current player's piece on this holder:
     //    - Figure out whose turn it is (getCurrentPlayer()->playerNumber()).
     //    - Create a Bit via PieceForPlayer(currentPlayerIndex).
     //    - Position it at the holder's position (holder->getPosition()).
     //    - Assign it to the holder: holder->setBit(newBit);
+    int whichPlayer = getCurrentPlayer()->playerNumber();
+
+    Bit* piece = PieceForPlayer(whichPlayer);
+
+    ImVec2 position = holder->getPosition();
+    piece->setPosition(position);
+    holder->setBit(piece);
 
     // 4) Return whether we actually placed a piece. true = acted, false = ignored.
-    return false; // replace with true if you complete a successful placement    
+    return true; // replace with true if you complete a successful placement    
 }
 
 bool TicTacToe::canBitMoveFrom(Bit *bit, BitHolder *src)
@@ -132,7 +141,16 @@ Player* TicTacToe::ownerAt(int index ) const
     // x = index % 3 
     // if there is no bit at that location (in _grid) return nullptr
     // otherwise return the owner of the bit at that location using getOwner()
-    return nullptr;
+
+    int x = index % 3;
+    int y = index / 3;
+
+    if(_grid[x][y].bit() == nullptr) {
+        return nullptr;
+    }
+    else {
+        return _grid[x][y].bit()->getOwner();
+    }
 }
 
 Player* TicTacToe::checkForWinner()
@@ -156,6 +174,14 @@ Player* TicTacToe::checkForWinner()
 
     // Hint: Consider using an array to store the winning combinations
     // to avoid repetitive code
+    int winningTriples[8][3] = { {0,1,2}, {3,4,5}, {6,7,8}, {0,3,6}, {1,4,7}, {2,5,8},{0,4,8},{2,4,6}};
+    
+    for (int i = 0; i < 8; i++) {
+        if(ownerAt(winningTriples[i][0]) == ownerAt(winningTriples[i][1]) && ownerAt(winningTriples[i][0]) == ownerAt(winningTriples[i][2])
+            && ownerAt(winningTriples[i][2]) == ownerAt(winningTriples[i][1])) {
+            return ownerAt(winningTriples[i][0]);
+        }
+    }
     return nullptr;
 }
 
@@ -164,6 +190,14 @@ bool TicTacToe::checkForDraw()
     // is the board full with no winner?
     // if any square is empty, return false
     // otherwise return true
+    for (int i = 0; i < 9; i++) {
+        if(ownerAt(i) == nullptr) {
+            return false;
+        }
+    }
+    if(checkForWinner() == nullptr) {
+        return true;
+    }
     return false;
 }
 
@@ -194,7 +228,21 @@ std::string TicTacToe::stateString() const
     // remember that player numbers are zero-based, so add 1 to get '1' or '2'
     // if the bit is null, add '0' to the string
     // finally, return the constructed string
-    return "000000000";
+
+    std::string stateStr;
+
+    for (int i = 0; i < 3; i++) {
+        for (int k = 0; k < 3; k++) {
+            if (_grid[k][i].bit() != nullptr) {
+                stateStr += std::to_string(_grid[k][i].bit()->getOwner()->playerNumber() + 1);
+            }
+            else {
+                stateStr += "0";
+            }
+        }
+    }
+    return stateStr;
+    //return "000000000";
 }
 
 //
@@ -223,6 +271,27 @@ void TicTacToe::setStateString(const std::string &s)
     // loop through the 3x3 array and set each square accordingly
     // the string should always be valid, so you don't need to check its length or contents
     // but you can assume it will always be 9 characters long and only contain '0', '1', or '2'
+    int count = 0;
+    for (int i = 0; i < 3; i++) {
+        for (int k = 0; k < 3; k++) {
+            int whichPlayer = s[count] - '0';
+            
+            if (whichPlayer == 0) {
+                _grid[k][i].setBit(nullptr);
+            }
+            else {
+
+                Bit* piece = PieceForPlayer(whichPlayer);
+    
+                ImVec2 position = _grid[k][i].getPosition();
+                piece->setPosition(position);
+                _grid[k][i].setBit(piece);
+            }
+
+
+            count++;
+        }
+    }
 }
 
 
