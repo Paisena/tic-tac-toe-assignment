@@ -1,4 +1,6 @@
 Jonathan Ng
 Used Windows
 
-In this assignment I focused on understanding the comments and how to covert them into the code for the program. I went down through the list of functions following the pseudocode provided and one by one filled them out. I had the most struggle with the state string functions in general as manipulating string has always been a problem for me.
+For making the base tic tac toe game, I focused on understanding the comments and how to covert them into the code for the program. I went down through the list of functions following the pseudocode provided and one by one filled them out. I had the most struggle with the state string functions in general as manipulating string has always been a problem for me.
+
+The negamax AI works by going through each position in the tictactoe board, and reaching all the terminal states based on the inital move. The AI the gives a score based if the terminal state has a winner or it is a draw. The AI keeps tracker if the move is good or bad for both sides by making flipping the value of the result going up every depth. This makes it so it knows that a good move for one player is a bad move for the other player, making the layer above(the other player) know to pick a branch which avoids that move. Eventually, the best result with move up the recursive tree to the beginning and the AI will then use that result which it deems as the best possible move.
